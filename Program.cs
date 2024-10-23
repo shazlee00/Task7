@@ -1,9 +1,13 @@
-﻿namespace Task7
+﻿using System.Net.NetworkInformation;
+
+namespace Task7
 {
     internal class Program
     {
         static void Main(string[] args)
         {
+            #region Task 7 part 1
+            Console.WriteLine("---------------------Task 7 part 1:-------------------------------");
             Console.Write("Enter First Point x,y,z:");
             try
             {
@@ -13,22 +17,22 @@
                 input = Console.ReadLine().Split(',');
                 Point3D p2 = new Point3D(int.Parse(input[0]), int.Parse(input[1]), int.Parse(input[2]));
 
-                Console.WriteLine(p1.Equals(p2));
+                Console.WriteLine(p1.Equals(p2)? "Points are equal" : "Points are not equal");
 
 
             }
-          catch(ArgumentException ex)
+            catch (ArgumentException ex)
             {
                 Console.WriteLine(ex.Message);
 
-                StreamWriter logger= File.AppendText("ErrorLog.txt");
+                StreamWriter logger = File.AppendText("ErrorLog.txt");
 
-                logger.WriteLine($"{ex.Message} -{ex.Source}-{ex.TargetSite} -{DateTime.Now.ToString()}" );
+                logger.WriteLine($"{ex.Message} -{ex.Source}-{ex.TargetSite} -{DateTime.Now.ToString()}");
                 logger.Close();
 
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 StreamWriter logger = File.AppendText("ErrorLog.txt");
@@ -36,14 +40,86 @@
                 logger.WriteLine($"{ex.Message} -{ex.Source}-{ex.TargetSite} -{DateTime.Now.ToString()}");
                 logger.Close();
             }
-            
-          
-            
-           
+            #endregion
 
-          
+            Console.WriteLine("---------------------Task 7 part 2:-------------------------------");
+
+            #region Singlton Task
+
+            var nic = NIC.NICInstance;
+
+            Console.WriteLine(nic);
+
+
+            #endregion
+
+
 
         }
+
+        public class NIC
+        {
+            public string Name { get; set; }
+
+            public string Description { get; set; }
+            public string Ip { get; set; }
+            public string Mac { get; set; }
+
+            public string Manufacturer { get; set; }
+
+            public string Type { get; set; }
+
+
+
+            private static NIC _nic;
+
+            private  NIC()
+            {
+                var wifiDevice = NetworkInterface.GetAllNetworkInterfaces().Where(x => x.Name == "Ethernet").FirstOrDefault();
+
+                
+
+                Name= wifiDevice.Name;
+                Ip = wifiDevice.GetIPProperties().UnicastAddresses[0].Address.ToString();
+                Mac = wifiDevice.GetPhysicalAddress().ToString();
+                Description = wifiDevice.Description;
+                Manufacturer = wifiDevice.Description;
+                Type = wifiDevice.NetworkInterfaceType.ToString();
+
+
+
+            }
+
+
+            public static NIC NICInstance
+            {
+                get
+                {
+                    if (_nic == null)
+                    {
+                        _nic = new NIC();
+                    }
+                    return _nic;
+                }
+
+                set
+                {
+
+                }
+            }
+
+
+
+
+            public override string ToString()
+            {
+                return $"Name:{Name}\nIp:{Ip}\nMac:{Mac}\nDescription:{Description}\nManufacturer:{Manufacturer} \nType:{Type}";
+            }
+
+
+
+        }
+
 
 
         public class Point3D
